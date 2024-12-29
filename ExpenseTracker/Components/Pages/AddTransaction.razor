@@ -1,0 +1,37 @@
+﻿@page "/add-transaction"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject DatabaseService DbService
+
+<h3>Add Transaction</h3>
+
+<div>
+    <input @bind="Title" placeholder="Title" />
+    <input @bind="Amount" placeholder="Amount" type="number" />
+    <select @bind="Type">
+        <option>Credit</option>
+        <option>Debit</option>
+        <option>Debt</option>
+    </select>
+    <button @onclick="OnAddTransaction">Add</button>
+</div>
+
+@code {
+    private string Title { get; set; }
+    private decimal Amount { get; set; }
+    private string Type { get; set; }
+
+    private async Task OnAddTransaction()
+    {
+        var transaction = new Transaction
+        {
+            Title = Title,
+            Amount = Amount,
+            Type = Type,
+            Date = DateTime.Now,
+            Id = 1 // Replace with actual UserId
+        };
+        await DbService.AddTransactionAsync(transaction);
+        Console.WriteLine("Transaction added.");
+    }
+}

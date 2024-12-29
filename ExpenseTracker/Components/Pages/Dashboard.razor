@@ -1,0 +1,28 @@
+﻿@page "/dashboard"
+@using ExpenseTracker.Services
+@inject DatabaseService DbService
+
+<h3>Dashboard</h3>
+
+<div>
+    <p>Total Inflows: @TotalInflows</p>
+    <p>Total Outflows: @TotalOutflows</p>
+    <p>Total Debts: @TotalDebts</p>
+    <p>Remaining Balance: @(TotalInflows - TotalOutflows)</p>
+</div>
+
+@code {
+    private decimal TotalInflows;
+    private decimal TotalOutflows;
+    private decimal TotalDebts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DbService.InitializeAsync(); // Ensure the database is initialized
+
+        var transactions = await DbService.GetTransactionsAsync(1); // Replace with actual UserId
+        TotalInflows = transactions.Where(t => t.Type == "Credit").Sum(t => t.Amount);
+        TotalOutflows = transactions.Where(t => t.Type == "Debit").Sum(t => t.Amount);
+        TotalDebts = transactions.Where(t => t.Type == "Debt").Sum(t => t.Amount);
+    }
+}

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ExpenseTracker.Services;
 
 namespace ExpenseTracker
 {
@@ -14,11 +15,15 @@ namespace ExpenseTracker
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+            // Register the DatabaseService as a scoped service
+            builder.Services.AddSingleton<DatabaseService>();
+
+            // Configure Blazor WebView
             builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
