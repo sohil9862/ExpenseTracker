@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using ExpenseTracker.Services;
+using MudBlazor.Services;
 
 namespace ExpenseTracker
 {
@@ -9,19 +10,22 @@ namespace ExpenseTracker
         {
             var builder = MauiApp.CreateBuilder();
             builder
-                .UseMauiApp<App>()
+                .UseMauiApp<App>() // Set the main app class
                 .ConfigureFonts(fonts =>
                 {
+                    // Add custom fonts
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
-            // Register the DatabaseService as a scoped service
-            builder.Services.AddSingleton<DatabaseService>();
+            // Register services
+            builder.Services.AddSingleton<DatabaseService>(); // Ensure DatabaseService is registered as a singleton
+            builder.Services.AddMudServices(); // Register MudBlazor services
 
-            // Configure Blazor WebView
+            // Add support for Blazor WebView
             builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
+            // Enable Blazor developer tools and logging in debug mode
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
