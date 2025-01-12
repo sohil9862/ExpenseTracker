@@ -1,11 +1,16 @@
 ﻿using DataModel.Model;
 using System.Text.Json;
 
+
 namespace DataModel.Abstraction
 {
     public abstract class UserBase
     {
-        protected static readonly string FilePath = Path.Combine(FileSystem.AppDataDirectory, "Sohil.json");
+        protected static readonly string FilePath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+    "Sohil.json"
+);
+
         protected List<User> LoadUsers()
         {
             if (!File.Exists(FilePath)) return new List<User>();

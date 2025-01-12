@@ -19,6 +19,7 @@ namespace ExpenseTracker
             builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
+            builder.Services.AddScoped<IUserInterface, UserService>();
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif

@@ -1,0 +1,154 @@
+﻿@page "/AddTransaction"
+@inject NavigationManager Nav
+
+<h3 class="text-center mb-4">Add Transaction</h3>
+
+<div class="transaction-form">
+    <div class="container">
+        <!-- Transaction Type -->
+        <div class="form-group row mb-3">
+            <label for="transactionType" class="col-sm-3 col-form-label">Transaction Type</label>
+            <div class="col-sm-6">
+                <select id="transactionType" class="form-control" @bind="Transaction.Type">
+                    <option value="Credit">Credit (Cash Inflow)</option>
+                    <option value="Debit">Debit (Cash Outflow)</option>
+                    <option value="Debt">Debt</option>
+                </select>
+
+            </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="form-group row mb-3">
+            <label for="amount" class="col-sm-3 col-form-label">Amount</label>
+            <div class="col-sm-6">
+                <input type="number" id="amount" class="form-control" placeholder="Enter amount" @bind="Transaction.Amount" />
+            </div>
+        </div>
+
+        <!-- Due Date (Only for Debt) -->
+        @if (Transaction.Type == "Debt")
+        {
+            <div class="form-group row mb-3">
+                <label for="debtDueDate" class="col-sm-3 col-form-label">Due Date</label>
+                <div class="col-sm-6">
+                    <input type="date" id="debtDueDate" class="form-control" @bind="Transaction.DueDate" />
+                </div>
+            </div>
+
+            <div class="form-group row mb-3">
+                <label for="debtSource" class="col-sm-3 col-form-label">Source of Debt</label>
+                <div class="col-sm-6">
+                    <input type="text" id="debtSource" class="form-control" placeholder="Enter source of debt" @bind="Transaction.DebtSource" />
+                </div>
+            </div>
+        }
+
+        <!-- Notes -->
+        <div class="form-group row mb-3">
+            <label for="notes" class="col-sm-3 col-form-label">Notes</label>
+            <div class="col-sm-6">
+                <textarea id="notes" class="form-control" rows="3" placeholder="Optional notes" @bind="Transaction.Notes"></textarea>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group row mb-3">
+            <label for="tags" class="col-sm-3 col-form-label">Tags</label>
+            <div class="col-sm-6">
+                <select id="tags" class="form-control" @bind="Transaction.Tag">
+                    <option>Yearly</option>
+                    <option>Monthly</option>
+                    <option>Food</option>
+                    <option>Drinks</option>
+                    <option>Clothes</option>
+                    <option>Gadgets</option>
+                    <option>Miscellaneous</option>
+                    <option>Fuel</option>
+                    <option>Rent</option>
+                    <option>EMI</option>
+                    <option>Party</option>
+                    <option>Other</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Transaction Date -->
+        <div class="form-group row mb-3">
+            <label for="transactionDate" class="col-sm-3 col-form-label">Transaction Date</label>
+            <div class="col-sm-6">
+                <input type="date" id="transactionDate" class="form-control" @bind="Transaction.TransactionDate" />
+            </div>
+        </div>
+
+        <!-- Validation Messages -->
+        @if (ErrorMessage != null)
+        {
+            <div class="alert alert-danger mb-3">
+                @ErrorMessage
+            </div>
+        }
+
+        <!-- Save Button -->
+        <div class="form-group row mb-3">
+            <div class="col-sm-6 offset-sm-3">
+                <button class="btn btn-primary btn-block" @onclick="SaveTransaction">Save Transaction</button>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard Button -->
+        <div class="form-group row mb-3">
+            <div class="col-sm-6 offset-sm-3">
+                <button class="btn btn-secondary btn-sm" @onclick="GoToDashboard">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Transaction Transaction { get; set; } = new Transaction();
+    private string ErrorMessage { get; set; } = null;
+
+    private void SaveTransaction()
+    {
+        // Validation
+        if (Transaction.Amount <= 0)
+        {
+            ErrorMessage = "Amount must be greater than 0.";
+            return;
+        }
+
+        // Check if the transaction type is debit and if the user has sufficient balance
+        if (Transaction.Type == "Debit" && !HasSufficientBalance(Transaction.Amount))
+        {
+            ErrorMessage = "Insufficient balance for debit transaction.";
+            return;
+        }
+
+        // Save the transaction logic (e.g., add to database or local state)
+        // After saving, navigate back to the Dashboard
+        // This part depends on how the application stores the data (e.g., a service or local database)
+
+        // Navigate back to the dashboard (or another page based on your app's flow)
+        Nav.NavigateTo("/Dashboard");
+    }
+
+    private void GoToDashboard()
+    {
+        // Navigate to Dashboard
+        Nav.NavigateTo("/Dashboard");
+    }
+
+    private bool HasSufficientBalance(decimal amount)
+    {
+        // Assuming you have a way to track the balance, you would check if the user has enough funds
+        decimal currentBalance = GetCurrentBalance();
+        return currentBalance >= amount;
+    }
+
+    private decimal GetCurrentBalance()
+    {
+        // You would retrieve the current balance (this could be from a service, database, etc.)
+        return 5000.00m; // Placeholder for demo purposes
+    }
+}

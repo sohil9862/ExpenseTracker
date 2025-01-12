@@ -1,6 +1,6 @@
 using DataModel.Model;
 
-namespace Money.Components.Pages
+namespace ExpenseTracker.Components.Pages
 {
     public partial class Login
     {
