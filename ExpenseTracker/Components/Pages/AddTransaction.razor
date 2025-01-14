@@ -1,5 +1,7 @@
 ﻿@page "/AddTransaction"
 @inject NavigationManager Nav
+@inject TransactionService TransactionService
+@using DataModel.Model;
 
 <h3 class="text-center mb-4">Add Transaction</h3>
 
@@ -10,8 +12,9 @@
             <label for="transactionType" class="col-sm-3 col-form-label">Transaction Type</label>
             <div class="col-sm-6">
                 <select id="transactionType" class="form-control" @bind="Transaction.Type">
-                    <option value="Credit">Credit (Cash Inflow)</option>
+                    <option value="no">-----</option>
                     <option value="Debit">Debit (Cash Outflow)</option>
+                    <option value="Credit">Credit (Cash Inflow)</option>
                     <option value="Debt">Debt</option>
                 </select>
             </div>
@@ -56,6 +59,7 @@
             <label for="tags" class="col-sm-3 col-form-label">Tags</label>
             <div class="col-sm-6">
                 <select id="tags" class="form-control" @bind="Transaction.Tag">
+                    <option>Select Tag</option>
                     <option>Yearly</option>
                     <option>Monthly</option>
                     <option>Food</option>
@@ -71,7 +75,6 @@
                 </select>
             </div>
         </div>
-    </div>
 
         <!-- Transaction Date -->
         <div class="form-group row mb-3">
@@ -81,10 +84,9 @@
             </div>
         </div>
 
-        <!-- Validation Messages -->
-        @if (ErrorMessage != null)
+        @if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            <div class="alert alert-danger mb-3">
+            <div class="alert alert-danger">
                 @ErrorMessage
             </div>
         }
@@ -99,55 +101,58 @@
         <!-- Back to Dashboard Button -->
         <div class="form-group row mb-3">
             <div class="col-sm-6 offset-sm-3">
-                <button class="btn btn-secondary btn-sm" @onclick="GoToDashboard">Back to Dashboard</button>
+                <button class="btn btn-secondary btn-sm" @onclick="Dashboard">Back to Dashboard</button>
             </div>
         </div>
     </div>
+</div>
 
 @code {
-    private Transaction Transaction { get; set; } = new Transaction();
+    private Transaction Transaction { get; set; } = new Transaction
+        {
+            Tag = "Select Tag",
+            TransactionDate = DateTime.Today  // Default to today's date
+        };
     private string ErrorMessage { get; set; } = null;
 
-    private void SaveTransaction()
+    private async Task SaveTransaction()
     {
-        // Validation
+        // Check if amount is greater than 0
         if (Transaction.Amount <= 0)
         {
             ErrorMessage = "Amount must be greater than 0.";
             return;
         }
 
-        // Check if the transaction type is debit and if the user has sufficient balance
-        if (Transaction.Type == "Debit" && !HasSufficientBalance(Transaction.Amount))
+        // Check if transaction type is selected
+        if (string.IsNullOrEmpty(Transaction.Type) || Transaction.Type == "no")
         {
-            ErrorMessage = "Insufficient balance for debit transaction.";
+            ErrorMessage = "Please Select Transaction Type.";
             return;
         }
 
-        // Save the transaction logic (e.g., add to database or local state)
-        // After saving, navigate back to the Dashboard
-        // This part depends on how the application stores the data (e.g., a service or local database)
+        // Check if a valid tag is selected
+        if (Transaction.Tag == "Select Tag")
+        {
+            ErrorMessage = "Please select a valid Tag.";
+            return;
+        }
 
-        // Navigate back to the dashboard (or another page based on your app's flow)
+        // If it's a debit transaction, check if balance is sufficient
+        if (Transaction.Type == "Debit" && Transaction.Amount > TransactionService.CurrentBalance)
+        {
+            ErrorMessage = "Insufficient balance for this debit transaction.";
+            return;
+        }
+
+        // Save the transaction using TransactionService
+        await TransactionService.SaveTransactionAsync(Transaction);
         Nav.NavigateTo("/Dashboard");
     }
 
-    private void GoToDashboard()
+    private void Dashboard()
     {
-        // Navigate to Dashboard
+        // Navigate to the Dashboard page
         Nav.NavigateTo("/Dashboard");
-    }
-
-    private bool HasSufficientBalance(decimal amount)
-    {
-        // Assuming you have a way to track the balance, you would check if the user has enough funds
-        decimal currentBalance = GetCurrentBalance();
-        return currentBalance >= amount;
-    }
-
-    private decimal GetCurrentBalance()
-    {
-        // You would retrieve the current balance (this could be from a service, database, etc.)
-        return 5000.00m; // Placeholder for demo purposes
     }
 }

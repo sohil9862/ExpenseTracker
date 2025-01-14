@@ -8,7 +8,7 @@ namespace DataModel.Abstraction
     {
         protected static readonly string FilePath = Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-    "Sohil.json"
+    "soh.json"
 );
 
         protected List<User> LoadUsers()

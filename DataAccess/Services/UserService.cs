@@ -8,8 +8,8 @@ namespace DataAccess.Services
     {
         private List<User> _user;
 
-        public const string SeedUserName = "Sohil";
-        public const string SeedPassword = "Sohil";
+        public const string SeedUserName = "s";
+        public const string SeedPassword = "s";
         public UserService()
         {
             _user = LoadUsers();
