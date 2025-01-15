@@ -1,7 +1,9 @@
 ﻿@page "/AddTransaction"
 @inject NavigationManager Nav
 @inject TransactionService TransactionService
-@using DataModel.Model;
+@inject DebtService DebtService
+@using DataAccess.Services
+@using DataModel.Model
 
 <h3 class="text-center mb-4">Add Transaction</h3>
 
@@ -11,8 +13,8 @@
         <div class="form-group row mb-3">
             <label for="transactionType" class="col-sm-3 col-form-label">Transaction Type</label>
             <div class="col-sm-6">
-                <select id="transactionType" class="form-control" @bind="Transaction.Type">
-                    <option value="no">-----</option>
+                <select id="transactionType" class="form-control" @bind="TransactionType">
+                    <option value="Select">Select Type</option>
                     <option value="Debit">Debit (Cash Outflow)</option>
                     <option value="Credit">Credit (Cash Inflow)</option>
                     <option value="Debt">Debt</option>
@@ -20,76 +22,123 @@
             </div>
         </div>
 
-        <!-- Amount -->
-        <div class="form-group row mb-3">
-            <label for="amount" class="col-sm-3 col-form-label">Amount</label>
-            <div class="col-sm-6">
-                <input type="number" id="amount" class="form-control" placeholder="Enter amount" @bind="Transaction.Amount" />
-            </div>
-        </div>
-
-        <!-- Due Date (Only for Debt) -->
-        @if (Transaction.Type == "Debt")
+        <!-- Regular Transaction Form -->
+        @if (TransactionType != "Debt")
         {
-            <div class="form-group row mb-3">
-                <label for="debtDueDate" class="col-sm-3 col-form-label">Due Date</label>
-                <div class="col-sm-6">
-                    <input type="date" id="debtDueDate" class="form-control" @bind="Transaction.DueDate" />
+            <div>
+                <!-- Amount -->
+                <div class="form-group row mb-3">
+                    <label for="amount" class="col-sm-3 col-form-label">Amount</label>
+                    <div class="col-sm-6">
+                        <input type="number" id="amount" class="form-control" placeholder="Enter amount" @bind="Transaction.Amount" />
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group row mb-3">
-                <label for="debtSource" class="col-sm-3 col-form-label">Source of Debt</label>
-                <div class="col-sm-6">
-                    <input type="text" id="debtSource" class="form-control" placeholder="Enter source of debt" @bind="Transaction.DebtSource" />
+                <!-- Notes -->
+                <div class="form-group row mb-3">
+                    <label for="notes" class="col-sm-3 col-form-label">Notes</label>
+                    <div class="col-sm-6">
+                        <textarea id="notes" class="form-control" rows="3" placeholder="Optional notes" @bind="Transaction.Notes"></textarea>
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div class="form-group row mb-3">
+                    <label for="tags" class="col-sm-3 col-form-label">Tags</label>
+                    <div class="col-sm-6">
+                        <select id="tags" class="form-control" @bind="Transaction.Tag">
+                            <option>Select Tag</option>
+                            <option>Yearly</option>
+                            <option>Monthly</option>
+                            <option>Food</option>
+                            <option>Drinks</option>
+                            <option>Clothes</option>
+                            <option>Gadgets</option>
+                            <option>Miscellaneous</option>
+                            <option>Fuel</option>
+                            <option>Rent</option>
+                            <option>EMI</option>
+                            <option>Party</option>
+                            <option>Loan</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Transaction Date -->
+                <div class="form-group row mb-3">
+                    <label for="transactionDate" class="col-sm-3 col-form-label">Date</label>
+                    <div class="col-sm-6">
+                        <input type="date" id="transactionDate" class="form-control" @bind="Transaction.TransactionDate" />
+                    </div>
                 </div>
             </div>
         }
 
-        <!-- Notes -->
-        <div class="form-group row mb-3">
-            <label for="notes" class="col-sm-3 col-form-label">Notes</label>
-            <div class="col-sm-6">
-                <textarea id="notes" class="form-control" rows="3" placeholder="Optional notes" @bind="Transaction.Notes"></textarea>
-            </div>
-        </div>
+        <!-- Debt Transaction Form -->
+        @if (TransactionType == "Debt")
+        {
+            <div>
+                <!-- Debt Amount -->
+                <div class="form-group row mb-3">
+                    <label for="debtAmount" class="col-sm-3 col-form-label">Amount</label>
+                    <div class="col-sm-6">
+                        <input type="number" id="debtAmount" class="form-control" placeholder="Enter debt amount" @bind="Debt.DebtAmount" />
+                    </div>
+                </div>
 
-        <!-- Tags -->
-        <div class="form-group row mb-3">
-            <label for="tags" class="col-sm-3 col-form-label">Tags</label>
-            <div class="col-sm-6">
-                <select id="tags" class="form-control" @bind="Transaction.Tag">
-                    <option>Select Tag</option>
-                    <option>Yearly</option>
-                    <option>Monthly</option>
-                    <option>Food</option>
-                    <option>Drinks</option>
-                    <option>Clothes</option>
-                    <option>Gadgets</option>
-                    <option>Miscellaneous</option>
-                    <option>Fuel</option>
-                    <option>Rent</option>
-                    <option>EMI</option>
-                    <option>Party</option>
-                    <option>Other</option>
-                </select>
-            </div>
-        </div>
+                <!-- Due Date -->
+                <div class="form-group row mb-3">
+                    <label for="dueDate" class="col-sm-3 col-form-label">Due Date</label>
+                    <div class="col-sm-6">
+                        <input type="date" id="dueDate" class="form-control" @bind="Debt.DueDate" />
+                    </div>
+                </div>
 
-        <!-- Transaction Date -->
-        <div class="form-group row mb-3">
-            <label for="transactionDate" class="col-sm-3 col-form-label">Transaction Date</label>
-            <div class="col-sm-6">
-                <input type="date" id="transactionDate" class="form-control" @bind="Transaction.TransactionDate" />
-            </div>
-        </div>
+                <!-- Source -->
+                <div class="form-group row mb-3">
+                    <label for="debtSource" class="col-sm-3 col-form-label">Source</label>
+                    <div class="col-sm-6">
+                        <input type="text" id="debtSource" class="form-control" placeholder="Enter debt source" @bind="Debt.DebtSource" />
+                    </div>
+                </div>
 
+                <!-- Notes -->
+                <div class="form-group row mb-3">
+                    <label for="debtNotes" class="col-sm-3 col-form-label">Notes</label>
+                    <div class="col-sm-6">
+                        <textarea id="debtNotes" class="form-control" rows="3" placeholder="Optional notes" @bind="Debt.DebtNotes"></textarea>
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div class="form-group row mb-3">
+                    <label for="tags" class="col-sm-3 col-form-label">Tags</label>
+                    <div class="col-sm-6">
+                        <select id="tags" class="form-control" @bind="Debt.DebtTag">
+                            <option>Loan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Debt Date -->
+                <div class="form-group row mb-3">
+                    <label for="debtDate" class="col-sm-3 col-form-label">Date</label>
+                    <div class="col-sm-6">
+                        <input type="date" id="debtDate" class="form-control" @bind="Debt.DebtDate" />
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Error Message -->
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
             <div class="alert alert-danger">
                 @ErrorMessage
             </div>
         }
+
 
         <!-- Save Button -->
         <div class="form-group row mb-3">
@@ -101,58 +150,8 @@
         <!-- Back to Dashboard Button -->
         <div class="form-group row mb-3">
             <div class="col-sm-6 offset-sm-3">
-                <button class="btn btn-secondary btn-sm" @onclick="Dashboard">Back to Dashboard</button>
+                <button class="btn btn-secondary btn-sm" @onclick="GoBackToDashboard">Back to Dashboard</button>
             </div>
         </div>
     </div>
 </div>
-
-@code {
-    private Transaction Transaction { get; set; } = new Transaction
-        {
-            Tag = "Select Tag",
-            TransactionDate = DateTime.Today  // Default to today's date
-        };
-    private string ErrorMessage { get; set; } = null;
-
-    private async Task SaveTransaction()
-    {
-        // Check if amount is greater than 0
-        if (Transaction.Amount <= 0)
-        {
-            ErrorMessage = "Amount must be greater than 0.";
-            return;
-        }
-
-        // Check if transaction type is selected
-        if (string.IsNullOrEmpty(Transaction.Type) || Transaction.Type == "no")
-        {
-            ErrorMessage = "Please Select Transaction Type.";
-            return;
-        }
-
-        // Check if a valid tag is selected
-        if (Transaction.Tag == "Select Tag")
-        {
-            ErrorMessage = "Please select a valid Tag.";
-            return;
-        }
-
-        // If it's a debit transaction, check if balance is sufficient
-        if (Transaction.Type == "Debit" && Transaction.Amount > TransactionService.CurrentBalance)
-        {
-            ErrorMessage = "Insufficient balance for this debit transaction.";
-            return;
-        }
-
-        // Save the transaction using TransactionService
-        await TransactionService.SaveTransactionAsync(Transaction);
-        Nav.NavigateTo("/Dashboard");
-    }
-
-    private void Dashboard()
-    {
-        // Navigate to the Dashboard page
-        Nav.NavigateTo("/Dashboard");
-    }
-}

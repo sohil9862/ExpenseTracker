@@ -1,23 +1,22 @@
 ﻿@page "/History"
+@using DataModel.Model
 @inject TransactionService TransactionService
-@inject NavigationManager Nav
-@using DataModel.Model;
 
-<h3 class="text-center mb-4">Transaction History</h3>
+<h3>Transaction History</h3>
 
-
-<!-- Display transactions -->
-<div class="transaction-history">
-    @if (Transactions != null && Transactions.Count > 0)
+<div>
+    @if (Transactions != null && Transactions.Any())
     {
         @foreach (var transaction in Transactions)
         {
             <div class="transaction-box mb-3 p-3 border rounded">
-                <p><strong>Type:</strong> @transaction.Type</p>
-                <p><strong>Amount:</strong> Rs. @transaction.Amount</p>
-                <p><strong>Notes:</strong> @transaction.Notes</p>
-                <p><strong>Tag:</strong> @transaction.Tag</p>
-                <p><strong>Date:</strong> @transaction.TransactionDate</p>
+                <strong class="d-block mb-2">@transaction.Type</strong>
+                <div class="transaction-details">
+                    <p><strong>Amount:</strong> Rs. @transaction.Amount</p>
+                    <p><strong>Note:</strong> @transaction.Notes</p>
+                    <p><strong>Tag:</strong> @transaction.Tag</p>
+                    <p><strong>Date:</strong> @transaction.TransactionDate.ToString("yyyy/MM/dd")</p>
+                </div>
             </div>
         }
     }
@@ -27,44 +26,6 @@
     }
 </div>
 
-<!-- Clear History and Back to Dashboard buttons -->
-<div class="mt-4">
-    <button class="btn btn-secondary" @onclick="NavigateToDashboard">Back to Dashboard</button>
-    <button class="btn btn-danger" @onclick="ClearHistory">Clear History</button>
-</div>
+<button class="btn btn-warning" @onclick="GoBackToDashboard">Back to Dashboard</button>
 
-@code {
-    private List<Transaction> Transactions = new();
-    private decimal currentBalance;
 
-    // Method to load transactions
-    protected override async Task OnInitializedAsync()
-    {
-        // Load all transactions
-        Transactions = TransactionService.GetTransactions();
-        // Set the current balance
-        currentBalance = TransactionService.GetCurrentBalance();
-    }
-
-    // Method to navigate to the dashboard
-    private void NavigateToDashboard()
-    {
-        Nav.NavigateTo("/Dashboard");
-    }
-
-    // Method to clear transaction history
-    private async Task ClearHistory()
-    {
-        // Clear transactions from the service
-        await TransactionService.ClearTransactionsAsync();
-
-        // Reload the transaction data after clearing it
-        Transactions.Clear();
-
-        // Reset balance to 1000
-        currentBalance = TransactionService.GetCurrentBalance();
-
-        // Optionally, display a message or reload the page to reflect changes
-        StateHasChanged();
-    }
-}

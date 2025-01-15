@@ -5,17 +5,28 @@ namespace ExpenseTracker.Services
 {
     public class TransactionService
     {
-        public static readonly string FilePath = Path.Combine(
+        public static readonly string TransactionsFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "Transactions.json"
         );
 
-        private decimal _currentBalance = 0m; // Starting balance at 0
+        public static readonly string BalanceFilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "Balance.json"
+        );
 
-        // Property to get current balance
+        private decimal _currentBalance;
+
+        // Constructor: Load the balance when the service is instantiated
+        public TransactionService()
+        {
+            _currentBalance = LoadBalance();
+        }
+
+        // Property to get the current balance
         public decimal CurrentBalance => _currentBalance;
 
-        // Save transaction method (updated for balance check)
+        // Save Credit/Debit transaction to Transactions.json
         public async Task SaveTransactionAsync(Transaction transaction)
         {
             if (transaction.Type == "Debit" && transaction.Amount > _currentBalance)
@@ -26,55 +37,65 @@ namespace ExpenseTracker.Services
             // Update balance based on transaction type
             if (transaction.Type == "Credit")
             {
-                _currentBalance += transaction.Amount; // Increase balance for Credit transactions
+                _currentBalance += transaction.Amount; // Increase balance for Credit
             }
             else if (transaction.Type == "Debit")
             {
-                _currentBalance -= transaction.Amount; // Decrease balance for Debit transactions
+                _currentBalance -= transaction.Amount; // Decrease balance for Debit
             }
 
+            // Save the updated balance
+            SaveBalance(_currentBalance);
+
             // Load existing transactions
-            List<Transaction> transactions = LoadTransactions();
-            transactions.Add(transaction); // Add the new transaction
+            List<Transaction> transactions = LoadTransactions(TransactionsFilePath);
+            transactions.Add(transaction);
 
             // Serialize the transactions to JSON
             string json = JsonSerializer.Serialize(transactions, new JsonSerializerOptions { WriteIndented = true });
 
             // Save the data asynchronously
-            await File.WriteAllTextAsync(FilePath, json);
+            await File.WriteAllTextAsync(TransactionsFilePath, json);
         }
 
-        // Load all transactions from the file
-        public List<Transaction> LoadTransactions()
+        // Load transactions from a specified file
+        private List<Transaction> LoadTransactions(string filePath)
         {
-            if (!File.Exists(FilePath))
+            if (!File.Exists(filePath))
             {
                 return new List<Transaction>(); // Return an empty list if no file exists
             }
 
-            var json = File.ReadAllText(FilePath);
+            var json = File.ReadAllText(filePath);
             return JsonSerializer.Deserialize<List<Transaction>>(json) ?? new List<Transaction>();
         }
 
-        // Get all transactions
-        public List<Transaction> GetTransactions()
+        // Get all Credit/Debit transactions
+        public List<Transaction> GetTransactionHistory()
         {
-            return LoadTransactions();
+            return LoadTransactions(TransactionsFilePath);
         }
 
-        // Method to clear transactions
-        public async Task ClearTransactionsAsync()
+        // Save the current balance to Balance.json
+        private void SaveBalance(decimal balance)
         {
-            if (File.Exists(FilePath))
+            string json = JsonSerializer.Serialize(balance, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(BalanceFilePath, json);
+        }
+
+        // Load the balance from Balance.json
+        private decimal LoadBalance()
+        {
+            if (!File.Exists(BalanceFilePath))
             {
-                // Delete the file to clear the history
-                File.Delete(FilePath);
+                return 10000m; // Default starting balance
             }
 
-            // Optionally reset balance here if needed
-            _currentBalance = 0m; ;
+            var json = File.ReadAllText(BalanceFilePath);
+            return JsonSerializer.Deserialize<decimal>(json);
         }
 
+        // Get the current balance
         public decimal GetCurrentBalance()
         {
             return _currentBalance;

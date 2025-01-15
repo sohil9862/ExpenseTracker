@@ -1,0 +1,33 @@
+﻿@page "/PendingDebts"
+@using DataModel.Model
+@inject DebtService DebtService
+
+<h3>Pending Debts</h3>
+
+<div>
+    @if (PendingDebtsList != null && PendingDebtsList.Any())
+    {
+        @foreach (var debt in PendingDebtsList)
+        {
+            <div class="debt-item mb-3 p-3 border rounded">
+                <strong class="d-block mb-2">Debt</strong>
+                <div class="debt-details">
+                    <p><strong>Amount:</strong> Rs. @debt.DebtAmount</p>
+                    <p><strong>Note:</strong> @debt.DebtNotes</p>
+                    <p><strong>Tag:</strong> @debt.DebtTag</p>
+                    <p><strong>Date:</strong> @debt.DebtDate.ToString("yyyy/MM/dd")</p>
+                    <p><strong>Due Date:</strong> @debt.DueDate.ToString("yyyy/MM/dd")</p>
+                    
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No pending debts found.</p>
+    }
+</div>
+
+<button class="btn btn-warning" @onclick="GoBackToDashboard">Back to Dashboard</button>
+
+

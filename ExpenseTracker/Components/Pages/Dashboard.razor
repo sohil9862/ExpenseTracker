@@ -3,13 +3,14 @@
 @using DataModel.Model
 @inject NavigationManager Nav
 @inject TransactionService TransactionService
+@inject DebtService DebtService
 
 <style>
     /* Container Layout */
     .dashboard-container {
         display: grid;
         grid-template-areas:
-            "balance buttons"
+            "buttons balance"
             "charts charts"
             "details details";
         gap: 30px;
@@ -17,9 +18,32 @@
         background-color: #f4f7fc;
     }
 
+    /* Buttons Section */
+    .buttons-section {
+        display: flex;
+        justify-content: flex-end; /* Align buttons to the right */
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .btn {
+        font-size: 16px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        background-color: #3498db; /* Uniform Blue Color */
+        color: white;
+    }
+
+        /* Button Hover Effects */
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
     /* Balance Section */
     .balance-section {
-        grid-area: balance;
         font-size: 32px;
         font-weight: 600;
         color: #2c3e50;
@@ -30,117 +54,80 @@
         text-align: center;
     }
 
-    /* Buttons Section */
-    .buttons-section {
-        grid-area: buttons;
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    .btn {
-        font-size: 16px;
-        padding: 10px 20px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        font-weight: bold;
-    }
-
-    .btn-history {
-        background-color: #3498db; /* Light Blue */
-        color: white;
-    }
-
-    .btn-add {
-        background-color: #2ecc71; /* Green */
-        color: white;
-    }
-
-    .btn-export {
-        background-color: #9b59b6; /* Purple */
-        color: white;
-    }
-
-    .btn-logout {
-        background-color: #e74c3c; /* Red */
-        color: white;
-    }
-
-    /* Button Hover Effects */
-    .btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Charts Section */
-    .charts-section {
-        grid-area: charts;
+    /* Cash Flow In and Out Section */
+    .cashflow-section {
         display: flex;
         justify-content: space-between;
         gap: 20px;
     }
 
-    .chart {
-        width: 48%;
+    .cashflow-box {
         background-color: #fff;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
+        width: 48%;
     }
 
-    .chart-circle {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background-color: #ddd;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        font-weight: bold;
-        margin: 10px auto;
-    }
+        .cashflow-box h4 {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
 
-    .details-section {
-        grid-area: details;
+        .cashflow-box .amount {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+    /* Transactions and Debts Section Container */
+    .transaction-debts-container {
         display: flex;
         justify-content: space-between;
-        gap: 30px;
+        gap: 30px; /* Space between transaction and debt sections */
         margin-top: 30px;
     }
 
-    .debts-section, .summary-section, .transactions-section {
-        width: 32%;
+    /* Wrapper Box for Transactions and Debts */
+    .transaction-debts-box {
+        display: flex;
+        justify-content: space-between;
+        gap: 30px;
         background-color: #fff;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .debt-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    /* Transaction Box */
+    .transaction-box {
+        width: 48%; /* Adjust width to fit two boxes in one row */
+        background-color: #f8f8f8;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         margin-bottom: 15px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-        /* Debt Section Button Styles */
-        .debt-item button {
+        .transaction-box .transaction-details {
             font-size: 14px;
-            padding: 5px 12px;
-            border-radius: 6px;
+            color: #555;
         }
 
-    .dashboard-stats {
+    /* Debt Box */
+    .debt-item {
+        width: 48%; /* Adjust width to fit two boxes in one row */
+        background-color: #f8f8f8;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+    }
+
+    .pending-debts h4 {
         margin-top: 20px;
     }
 
+    /* Cash Flow Stats */
     .stat {
         margin-bottom: 20px;
     }
@@ -159,138 +146,82 @@
             .stat .amount.danger {
                 color: #dc3545; /* Red for Cash Flow Out */
             }
-
-    .transaction-box {
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-        .transaction-box strong {
-            font-size: 1.2em;
-            color: #333;
-        }
-
-    .transaction-details p {
-        margin: 5px 0;
-        color: #555;
-    }
-
-    .transaction-box:hover {
-        background-color: #f1f1f1;
-    }
-
-
-    /* List Style */
-    ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
 </style>
+
+<!-- Buttons Section -->
+<div class="buttons-section">
+    <button class="btn" @onclick="GoToAddTransaction">Add Transaction</button>
+    <button class="btn" @onclick="GoToHistory">History</button>
+    <button class="btn" @onclick="NavigateToPendingDebts">Pending Debts</button>
+    <button class="btn" @onclick="Logout">Log Out</button>
+    
+</div>
+
+<!-- Total Transactions and Count Section -->
+<div class="stat">
+    <h4>Total Transactions</h4>
+    <p class="amount">Count: @TotalTransactionCount</p>
+    <p class="amount">Total: Rs. @TotalTransactions</p>
+</div>
 
 <!-- Total Balance -->
 <div>
     <p><strong>Total Balance:</strong> Rs. @currentBalance</p>
 </div>
 
-<!-- Cash Flow In and Out -->
-<div class="dashboard-container">
-    <div>
-        <p><strong>Cash Flow In: </strong>Rs. @CashFlowIn</p>
-        <p><strong>Cash Flow Out: </strong>Rs. @CashFlowOut</p>
+<!-- Cash Flow In and Out Section -->
+<div class="cashflow-section">
+    <div class="cashflow-box">
+        <h4>Cash Flow In</h4>
+        <p class="amount">Rs. @CashFlowIn</p>
+    </div>
+    <div class="cashflow-box">
+        <h4>Cash Flow Out</h4>
+        <p class="amount danger">Rs. @CashFlowOut</p>
     </div>
 </div>
 
-<!-- Buttons Section -->
-<div class="buttons-section">
-    <button class="btn btn-history" @onclick="GoToHistory">History</button>
-    <button class="btn btn-add" @onclick="GoToAddTransaction">Add Transaction</button>
-    <button class="btn btn-export">Export</button>
-    <button class="btn btn-logout" @onclick="Logout">Log Out</button>
-    <button class="btn btn-warning" @onclick="NavigateToPendingDebts">Pending Debts</button>
+<!-- Debt Flow In and Out Section -->
+<div class="cashflow-section">
+    <div class="cashflow-box">
+        <h4>Remaining Debts</h4>
+        <p class="amount">Rs. @RemainingDebts</p>
+    </div>
+    <div class="cashflow-box">
+        <h4>Cleared Debts</h4>
+        <p class="amount danger">Rs. @ClearedDebts</p>
+    </div>
 </div>
 
-<!-- Transaction Display Section -->
-<h4>Recent Transactions</h4>
-
-@foreach (var transaction in Transactions)
-{
-    <div class="transaction-box mb-3 p-3 border rounded">
-        <strong class="d-block mb-2">@transaction.Type</strong>
-        <div class="transaction-details">
-            <p><strong>Amount:</strong> Rs. @transaction.Amount</p>
-            <p><strong>Note:</strong> @transaction.Notes</p>
-            <p><strong>Tag:</strong> @transaction.Tag</p>
-            <p><strong>Date:</strong> @transaction.TransactionDate.ToString("yyyy/MM/dd")</p>
-        </div>
+<!-- Transaction and Pending Debts Section -->
+<div class="transaction-debts-box">
+    <!-- Transactions Section -->
+    <div class="transaction-box">
+        <h4>Recent Transactions</h4>
+        @foreach (var transaction in Transactions)
+        {
+            <div class="transaction-box">
+                <strong class="d-block mb-2">@transaction.Type</strong>
+                <div class="transaction-details">
+                    <p><strong>Amount:</strong> Rs. @transaction.Amount</p>
+                    <p><strong>Date:</strong> @transaction.TransactionDate.ToString("yyyy/MM/dd")</p>
+                </div>
+            </div>
+        }
     </div>
-}
 
-@code {
-    private decimal currentBalance { get; set; }
-    private decimal CashFlowIn { get; set; }
-    private decimal CashFlowOut { get; set; }
-    private List<Transaction> Transactions { get; set; } = new List<Transaction>();
-    private const int MaxTransactionsToShow = 5; // Show the latest 5 transactions
-
-    protected override void OnInitialized()
-    {
-        LoadTransactionData();
-    }
-
-    private void LoadTransactionData()
-    {
-        var transactions = TransactionService.GetTransactions();
-
-        // Update the list of transactions to display
-        Transactions = transactions.OrderByDescending(t => t.TransactionDate).Take(MaxTransactionsToShow).ToList();
-
-        // Update cash flow in and out
-        CashFlowIn = transactions.Where(t => t.Type == "Credit").Sum(t => t.Amount);
-        CashFlowOut = transactions.Where(t => t.Type == "Debit").Sum(t => t.Amount);
-
-        // Update total balance
-        currentBalance = TransactionService.GetCurrentBalance();
-
-        // Refresh the UI
-        StateHasChanged();
-    }
-
-    private async Task ClearHistory()
-    {
-        // Clear transactions from the service
-        await TransactionService.ClearTransactionsAsync();
-
-        // Clear the displayed transactions
-        Transactions.Clear();
-
-        // Reset the balance to 1000
-        currentBalance = TransactionService.GetCurrentBalance();
-
-        // Optionally, reload the UI
-        StateHasChanged();
-    }
-
-    private void GoToAddTransaction()
-    {
-        Nav.NavigateTo("/AddTransaction");
-    }
-
-    private void Logout()
-    {
-        Nav.NavigateTo("/Login");
-    }
-
-    private void GoToHistory()
-    {
-        Nav.NavigateTo("/History");
-    }
-
-    private void NavigateToPendingDebts()
-    {
-        Nav.NavigateTo("/PendingDebts");
-    }
-}
-
+    <!-- Pending Debts Section -->
+    <div class="debt-item">
+        <h4>Pending Debts</h4>
+        @foreach (var debt in GetTopPendingDebts())
+        {
+            <div class="debt-item">
+                <div class="debt-details">
+                    <p><strong>Amount:</strong> Rs. @debt.DebtAmount</p>
+                    <p><strong>Source:</strong> @debt.DebtSource</p>
+                    <p><strong>Due Date:</strong> @debt.DueDate.ToString("yyyy/MM/dd")</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

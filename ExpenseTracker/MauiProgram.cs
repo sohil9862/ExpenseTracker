@@ -28,6 +28,8 @@ namespace ExpenseTracker
             // Singleton registration for TransactionService
             builder.Services.AddSingleton<TransactionService>();
 
+            builder.Services.AddSingleton<DebtService>();
+
             // Enable Blazor WebView Developer Tools (for development)
             builder.Services.AddBlazorWebViewDeveloperTools();
 
