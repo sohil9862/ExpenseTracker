@@ -20,16 +20,16 @@
             </div>
 
             <!-- Currency Selector -->
-            <div class="form-floating mb-3">
-                <select class="form-select rounded-pill" @bind="Users.Currency">
-                    <option value="" disabled selected>Currency</option>
-                    <option value="USD">USD - US Dollar</option>
-                    <option value="EUR">EUR - Euro</option>
-                    <option value="NPR">NPR - Nepalese Rupee</option>
-                    <option value="INR">INR - Indian Rupee</option>
-                </select>
-                <label for="currencySelector">Currency</label>
-            </div>
+<div class="form-floating mb-3">
+    <select class="form-select rounded-pill" @bind="Users.Currency" id="currencySelector">
+        <option value="" disabled selected hidden>Currency</option>
+                    @foreach (var currency in Enum.GetValues(typeof(DataModel.Common.Base.Currency)))
+                    {
+                <option value="@currency">@currency.ToString().Replace("_", " ")</option>
+                    }
+    </select>
+    <label for="currencySelector">Currency</label>
+</div>
 
             <!-- Error Message -->
             @if (!string.IsNullOrEmpty(ErrorMessage))
