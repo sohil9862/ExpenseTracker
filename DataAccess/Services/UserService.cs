@@ -4,29 +4,30 @@ using DataModel.Model;
 
 namespace DataAccess.Services
 {
-    public class UserService : UserBase,IUserInterface
+    public class UserService : UserBase, IUserInterface
     {
-        private List<User> _user;
+        private const string SeedUsername = "admin";
+        private const string SeedPassword = "password";
 
-        public const string SeedUserName = "s";
-        public const string SeedPassword = "s";
         public UserService()
         {
-            _user = LoadUsers();
-
-            if (!_user.Any()) 
-            {
-                _user.Add(new User { UserName = SeedUserName, Password = SeedPassword });
-                SaveUsers(_user);
-            }
+            // No need to load users, just initialize the seed user.
         }
+
+        /// <summary>
+        /// Handles user login logic for the seed user.
+        /// </summary>
+        /// <param name="user">The user object containing username and password.</param>
+        /// <returns>True if login is successful; otherwise, false.</returns>
         public bool Login(User user)
         {
-            if (string.IsNullOrEmpty(user.UserName) || (string.IsNullOrEmpty(user.Password)))
+            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
             {
-                return false;
+                return false; // Invalid login input
             }
-            return _user.Any(u => u.UserName == user.UserName && u.Password == user.Password);
+
+            // Only allow login if the username and password match the seed user
+            return user.UserName == SeedUsername && user.Password == SeedPassword;
         }
     }
 }

@@ -2,6 +2,7 @@
 using DataAccess.Interface;
 using DataAccess.Services;
 using ExpenseTracker.Services;
+using MudBlazor.Services;
 
 namespace ExpenseTracker
 {
@@ -35,6 +36,7 @@ namespace ExpenseTracker
 
             // Enable logging for debugging
             builder.Logging.AddDebug();
+            builder.Services.AddMudServices();
 #endif
 
             return builder.Build();

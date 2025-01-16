@@ -4,28 +4,104 @@
 
 <h3>Transaction History</h3>
 
+<!-- Back to Dashboard Button at the top -->
+<div class="mb-3">
+    <button class="btn btn-secondary" @onclick="GoBackToDashboard">Back to Dashboard</button>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section mb-3 d-flex justify-content-between">
+    <!-- Filter by Tag -->
+    <div class="filter-item">
+        <label for="tagFilter" class="form-label"><strong>Tag:</strong></label>
+        <select id="tagFilter" class="form-select form-select-sm" @bind="SelectedTag">
+            <option value="All">All</option>
+            @foreach (var tag in AvailableTags)
+            {
+                    <option value="@tag">@tag</option>
+            }
+        </select>
+    </div>
+
+    <!-- Filter by Transaction Type -->
+    <div class="filter-item">
+        <label for="typeFilter" class="form-label"><strong>Type:</strong></label>
+        <select id="typeFilter" class="form-select form-select-sm" @bind="SelectedType">
+            <option value="All">All</option>
+            <option value="Debit">Debit</option>
+            <option value="Credit">Credit</option>
+        </select>
+    </div>
+
+    <!-- Filter by Date -->
+    <div class="filter-item">
+        <label for="dateFilter" class="form-label"><strong>Date:</strong></label>
+        <input type="date" id="dateFilter" class="form-control form-control-sm" @bind="SelectedDate"/>
+    </div>
+
+    <!-- Filter Button -->
+    <div class="filter-item align-self-end">
+        <button class="btn btn-primary btn-sm" @onclick="FilterTransactions">Filter</button>
+    </div>
+</div>
+
+<!-- Filtered Transactions -->
 <div>
-    @if (Transactions != null && Transactions.Any())
+    @if (FilteredTransactions != null && FilteredTransactions.Any())
     {
-        @foreach (var transaction in Transactions)
+        @foreach (var transaction in FilteredTransactions)
         {
-            <div class="transaction-box mb-3 p-3 border rounded">
-                <strong class="d-block mb-2">@transaction.Type</strong>
-                <div class="transaction-details">
-                    <p><strong>Amount:</strong> Rs. @transaction.Amount</p>
-                    <p><strong>Note:</strong> @transaction.Notes</p>
-                    <p><strong>Tag:</strong> @transaction.Tag</p>
-                    <p><strong>Date:</strong> @transaction.TransactionDate.ToString("yyyy/MM/dd")</p>
-                </div>
-            </div>
+                    <div class="transaction-box mb-3 p-2 border rounded">
+                        <strong class="d-block mb-1" style="font-size: 14px;">@transaction.Type</strong>
+                        <div class="transaction-details" style="font-size: 12px;">
+                            <p><strong>Amount:</strong> Rs. @transaction.Amount</p>
+                            <p><strong>Note:</strong> @transaction.Notes</p>
+                            <p><strong>Tag:</strong> @transaction.Tag</p>
+                            <p><strong>Date:</strong> @transaction.TransactionDate.ToString("yyyy/MM/dd")</p>
+                        </div>
+                    </div>
         }
     }
     else
     {
-        <p>No transactions found.</p>
+            <p>No transactions found.</p>
     }
 </div>
 
-<button class="btn btn-warning" @onclick="GoBackToDashboard">Back to Dashboard</button>
+<!-- Styles -->
+<style>
+    .filter-section {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
 
+    .filter-item {
+        flex: 1;
+        max-width: 150px;
+    }
 
+    .btn-secondary {
+        background-color: #3498db; /* Similar color to dashboard */
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #2980b9;
+    }
+
+    .form-select-sm,
+    .form-control-sm,
+    .btn-sm {
+        font-size: 12px;
+    }
+
+    .transaction-box {
+        background-color: #f9f9f9;
+        font-size: 14px;
+    }
+
+    .transaction-details p {
+        font-size: 12px;
+    }
+</style>

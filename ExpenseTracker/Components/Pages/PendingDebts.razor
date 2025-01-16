@@ -4,30 +4,87 @@
 
 <h3>Pending Debts</h3>
 
+<!-- Back to Dashboard Button at the top -->
+<div class="mb-3">
+    <button class="btn btn-secondary" @onclick="GoBackToDashboard">Back to Dashboard</button>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section mb-3 d-flex justify-content-between">
+    <!-- Filter by Due Date -->
+    <div class="filter-item">
+        <label for="dueDateFilter" class="form-label"><strong>Due Date:</strong></label>
+        <input type="date" id="dueDateFilter" class="form-control form-control-sm" @bind="SelectedDueDate"/>
+    </div>
+
+    <!-- Filter by Debt Date -->
+    <div class="filter-item">
+        <label for="debtDateFilter" class="form-label"><strong>Debt Date:</strong></label>
+        <input type="date" id="debtDateFilter" class="form-control form-control-sm" @bind="SelectedDebtDate"/>
+    </div>
+
+    <!-- Filter Button -->
+    <div class="filter-item align-self-end">
+        <button class="btn btn-primary btn-sm" @onclick="FilterDebts">Filter</button>
+    </div>
+</div>
+
+<!-- Filtered Debts -->
 <div>
-    @if (PendingDebtsList != null && PendingDebtsList.Any())
+    @if (FilteredDebts != null && FilteredDebts.Any())
     {
-        @foreach (var debt in PendingDebtsList)
+        @foreach (var debt in FilteredDebts)
         {
-            <div class="debt-item mb-3 p-3 border rounded">
-                <strong class="d-block mb-2">Debt</strong>
-                <div class="debt-details">
-                    <p><strong>Amount:</strong> Rs. @debt.DebtAmount</p>
-                    <p><strong>Note:</strong> @debt.DebtNotes</p>
-                    <p><strong>Tag:</strong> @debt.DebtTag</p>
-                    <p><strong>Date:</strong> @debt.DebtDate.ToString("yyyy/MM/dd")</p>
-                    <p><strong>Due Date:</strong> @debt.DueDate.ToString("yyyy/MM/dd")</p>
-                    
-                </div>
-            </div>
+                    <div class="debt-item mb-3 p-2 border rounded">
+                        <div class="debt-details" style="font-size: 12px;">
+                            <p><strong>Amount:</strong> Rs. @debt.DebtAmount</p>
+                            <p><strong>Note:</strong> @debt.DebtNotes</p>
+                            <p><strong>Tag:</strong> Loan</p>
+                            <p><strong>Debt Date:</strong> @debt.DebtDate.ToString("yyyy/MM/dd")</p>
+                            <p><strong>Due Date:</strong> @debt.DueDate.ToString("yyyy/MM/dd")</p>
+                        </div>
+                    </div>
         }
     }
     else
     {
-        <p>No pending debts found.</p>
+            <p>No pending debts found.</p>
     }
 </div>
 
-<button class="btn btn-warning" @onclick="GoBackToDashboard">Back to Dashboard</button>
+<!-- Styles -->
+<style>
+    .filter-section {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
 
+    .filter-item {
+        flex: 1;
+        max-width: 150px;
+    }
 
+    .btn-secondary {
+        background-color: #3498db; /* Similar color to dashboard */
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #2980b9;
+    }
+
+    .form-control-sm,
+    .btn-sm {
+        font-size: 12px;
+    }
+
+    .debt-item {
+        background-color: #f9f9f9;
+        font-size: 14px;
+    }
+
+    .debt-details p {
+        font-size: 12px;
+    }
+</style>

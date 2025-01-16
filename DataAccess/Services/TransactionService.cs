@@ -29,6 +29,13 @@ namespace ExpenseTracker.Services
         // Save Credit/Debit transaction to Transactions.json
         public async Task SaveTransactionAsync(Transaction transaction)
         {
+
+            if (string.IsNullOrWhiteSpace(transaction.Tag) || transaction.Tag == "Select")
+            {
+                throw new InvalidOperationException("Please select a valid tag.");
+            }
+
+
             if (transaction.Type == "Debit" && transaction.Amount > _currentBalance)
             {
                 throw new InvalidOperationException("Insufficient balance for this debit transaction.");

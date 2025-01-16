@@ -2,9 +2,9 @@
 {
     public enum Currency
     {
-        NepaleseRupee,
-        USDollar,
-        Pound,
-        IndianRupee,
+        NepaleseRupee = 1,
+        USDollar = 2,
+        Pound = 3,
+        IndianRupee = 4,
     }
 }

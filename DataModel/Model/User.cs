@@ -1,9 +1,8 @@
-﻿using DataModel.BaseEntity;
-using DataModel.Common.Base;
+﻿using DataModel.Common.Base;
 
 namespace DataModel.Model
 {
-    public class User: BaseEntity<Guid>
+    public class User
     {
         public string UserName { get; set; }
 
